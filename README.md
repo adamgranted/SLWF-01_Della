@@ -184,59 +184,6 @@ The default configuration assumes the following for the SLWF-01 dongle:
 
 If your dongle uses different pins, update the `uart` section in the configuration file.
 
-## Advanced ESPHome Debugging
-
-For advanced troubleshooting of communication issues between ESPHome and your Della AC unit:
-
-1. **Enable Verbose Logging**: Modify your ESPHome configuration to enable verbose logging:
-   ```yaml
-   logger:
-     level: VERBOSE
-     # Enable UART debugging logs
-     logs:
-       uart: VERBOSE
-   ```
-
-2. **Monitor Raw UART Communication**: This will show the raw byte communication with the AC unit, helpful for protocol debugging:
-   ```yaml
-   uart:
-     id: ac_uart
-     tx_pin: GPIO1
-     rx_pin: GPIO3
-     baud_rate: 9600
-     parity: EVEN
-     data_bits: 8
-     stop_bits: 1
-     debug:
-       direction: BOTH
-       dummy_receiver: false
-       sequence: HEXADECIMAL
-   ```
-
-3. **Live Log Monitoring**: Connect to your ESPHome device to monitor logs in real-time:
-   ```bash
-   esphome logs your_config.yaml
-   ```
-
-4. **Compare Protocol Data**: 
-   - The AC-Hack.txt implementation contains specific byte arrays for controlling the AC unit
-   - Compare the byte sequences in `send_AC()` and `read_AC()` functions in the original code with our ESPHome implementation
-   - Key protocol elements to check:
-     - Command prefix: `0xBB`
-     - Power control: `snd_a[7]=(snd_a[7]&0xFB)|(4*spwr)`
-     - Mode control: `snd_a[8]=(snd_a[8]&0xF0)|(modes[smd-1])`
-     - Temperature settings: `snd_a[9]=0x6F-stset`
-
-5. **Direct Serial Monitoring**: For hardware-level debugging, you can use a USB-to-TTL adapter to directly monitor communication between the SLWF-01 and AC unit.
-
-## Customization
-
-You can modify the code to support additional features or adjust existing ones:
-
-- Edit della_ac.h and della_ac.cpp for protocol changes
-- Modify climate.py for ESPHome integration changes
-- Update della_ac.yaml for configuration changes
-
 ## Credits
 
 This implementation is based on the protocol analysis found in Klima04.txt, which was derived from https://github.com/adaasch/AC-hack.
