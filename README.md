@@ -31,8 +31,8 @@ The code successfully compiles with ESPHome 2025.2.2. The UART protocol implemen
 
 2. **Clone this repository**:
    ```bash
-   git clone <your-repository-url>
-   cd <repository-directory>
+   git clone https://github.com/adamgranted/SLWF-01_Della
+   cd SLWF-01_Della
    ```
 
 3. **Edit secrets.yaml**: Update the secrets.yaml file with your WiFi credentials and other information:
@@ -55,19 +55,26 @@ The code successfully compiles with ESPHome 2025.2.2. The UART protocol implemen
 
 If you already have an ESPHome setup and want to integrate this Della AC component:
 
-1. **Add the Component to Your ESPHome Directory**:
+1. **Clone the Repository into Your ESPHome Directory**:
    ```bash
    # Navigate to your ESPHome config directory (typically ~/.esphome or your Home Assistant config/esphome)
    cd ~/.esphome
    
-   # Create a components directory if it doesn't exist
-   mkdir -p components/della_ac
+   # Clone the repository
+   git clone https://github.com/adamgranted/SLWF-01_Della
    
-   # Copy the component files
-   cp /path/to/this/repo/components/della_ac/* components/della_ac/
+   # Create a symbolic link to the components directory
+   ln -s SLWF-01_Della/components/della_ac components/della_ac
    ```
 
-2. **Configure Your Existing ESPHome YAML**:
+2. **Staying Updated**:
+   ```bash
+   # To update to the latest version
+   cd ~/.esphome/SLWF-01_Della
+   git pull
+   ```
+
+3. **Configure Your Existing ESPHome YAML**:
    Add the following to your existing ESPHome configuration file:
    ```yaml
    # UART Configuration for communicating with the AC
@@ -92,18 +99,18 @@ If you already have an ESPHome setup and want to integrate this Della AC compone
        uart_id: ac_uart
    ```
 
-3. **Hardware Connection**:
+4. **Hardware Connection**:
    - Connect the SLWF-01 dongle to your Della AC unit using the appropriate cables
    - The dongle uses TX/RX for communication with the AC unit
    - The original AC-Hack.txt used GPIO 13 (TX) and GPIO 15 (RX) with 9600 baud rate, 8 data bits, even parity, and 1 stop bit
    - The default configuration for SLWF-01 uses GPIO1 and GPIO3, which may need adjustment based on your specific dongle
 
-4. **Verify Communication**:
+5. **Verify Communication**:
    - After flashing your ESPHome configuration, check the logs to ensure proper communication
    - Look for successful initialization of the UART and the climate component
    - You should see log messages showing the AC status being read successfully
 
-5. **Troubleshooting Connection Issues**:
+6. **Troubleshooting Connection Issues**:
    - If you experience connection issues, try swapping the TX/RX pins
    - Verify the baud rate and parity settings match your AC unit's requirements
    - Check the physical connection between the dongle and AC unit
@@ -114,23 +121,37 @@ If you already have an ESPHome setup and want to integrate this Della AC compone
 If you're using the ESPHome Dashboard (either standalone or through Home Assistant), you can easily manage your Della AC integration:
 
 1. **Adding to ESPHome Dashboard**:
-   - Copy the `della_ac.yaml` file to your ESPHome dashboard configuration directory
+   - Option 1: Use the installation method described above to add the component to your ESPHome directory
+   - Option 2: If using Home Assistant, you can create an external_components directory in your config/esphome folder:
+     ```bash
+     cd config/esphome
+     git clone https://github.com/adamgranted/SLWF-01_Della
+     ```
+   - Copy the `della_ac.yaml` file from the repository to your ESPHome dashboard configuration directory
    - In the ESPHome Dashboard, click on the three dots next to the newly added device
    - Select "Edit" to customize the configuration for your specific setup
 
-2. **Using Secrets in Dashboard**:
+2. **Using Git for Updates**:
+   - To update the component when improvements are made:
+     ```bash
+     cd ~/path/to/your/SLWF-01_Della
+     git pull
+     ```
+   - Rebuild and reflash your device after updating
+
+3. **Using Secrets in Dashboard**:
    - The ESPHome Dashboard automatically uses the `secrets.yaml` file in your ESPHome directory
    - Make sure to update it with your credentials as described in the Installation section
 
-3. **OTA Updates via Dashboard**:
+4. **OTA Updates via Dashboard**:
    - Once initially flashed, you can update your device over-the-air through the dashboard
    - Click "Install" and select "Wirelessly" to push new configurations without connecting via USB
 
-4. **Monitoring Logs**:
+5. **Monitoring Logs**:
    - In the ESPHome Dashboard, click on the three dots next to your device
    - Select "Logs" to view real-time logs for debugging
 
-5. **Integration with Home Assistant**:
+6. **Integration with Home Assistant**:
    - Devices added through the ESPHome Dashboard will automatically appear in Home Assistant
    - Look for your newly added Della AC under the ESPHome integration in Home Assistant
 
