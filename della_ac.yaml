@@ -1,0 +1,56 @@
+# Basic ESPHome configuration for Della AC with SLWF-01
+esphome:
+  name: della-ac
+
+# ESP8266 platform configuration
+esp8266:
+  board: esp01_1m  # SLWF-01 typically uses ESP8266
+
+# WiFi credentials
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  # Optional fallback AP mode if WiFi connection fails
+  ap:
+    ssid: "Della AC Fallback"
+    password: !secret fallback_password
+
+# Enable logging
+logger:
+  level: INFO
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+# Enable OTA updates
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# Enable Web server
+web_server:
+  port: 80
+
+# UART Configuration for communicating with the AC
+uart:
+  id: ac_uart
+  tx_pin: GPIO1  # May need to adjust for SLWF-01
+  rx_pin: GPIO3  # May need to adjust for SLWF-01
+  baud_rate: 9600
+  parity: EVEN
+  data_bits: 8
+  stop_bits: 1
+
+# External components directory where we'll put our custom component
+external_components:
+  - source: components
+    components: [della_ac]
+
+# Use our custom component
+climate:
+  - platform: della_ac
+    name: "Della Air Conditioner"
+    uart_id: ac_uart 
