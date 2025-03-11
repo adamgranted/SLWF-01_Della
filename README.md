@@ -1,6 +1,6 @@
 # Della Mini Split Control with ESPHome
 
-This project enables control of a Della mini split air conditioner using ESPHome and a SLWF-01 dongle. The implementation is based on reverse-engineered protocol from the Klima04.txt file.
+This project is a work in progress and is currently broken. This _will_ enable control of a Della mini split air conditioner using ESPHome and a SLWF-01 dongle. The implementation is based on reverse-engineered protocol from the [Klima04.txt file](https://github.com/adaasch/AC-hack/issues/3#issuecomment-2346573789).
 
 ## Hardware Requirements
 
