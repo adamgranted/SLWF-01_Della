@@ -262,7 +262,10 @@ class DellaAC : public climate::Climate, public Component, public uart::UARTDevi
     b[4] &= 0x80;
     float t = 8.0f + ((b[2] >> 3) & 0x1F) + b[14] / 10.0f;
     uint8_t send_int = (uint8_t) t;
-    uint8_t send_tenths = ((uint8_t) lroundf(t * 10.0f)) % 10;
+    // Keep lroundf as a long for the % 10. Casting to uint8_t first wraps at
+    // 256 — and t*10 >= 256 for t >= 25.6 C (~78 F) — which corrupted the
+    // tenths digit and mis-set every setpoint above ~78 F.
+    uint8_t send_tenths = lroundf(t * 10.0f) % 10;
     if (send_tenths != 0 && send_tenths != 5) {
       send_tenths += 1;
       if (send_tenths == 10) { send_tenths = 0; send_int += 1; }
@@ -352,7 +355,9 @@ class DellaAC : public climate::Climate, public Component, public uart::UARTDevi
         t = 8.0f + ((b[2] >> 3) & 0x1F) + b[14] / 10.0f;  // preserve stored
       }
       uint8_t send_int = (uint8_t) t;
-      uint8_t send_tenths = ((uint8_t) lroundf(t * 10.0f)) % 10;
+      // long % 10, not (uint8_t) first: t*10 >= 256 for t >= 25.6 C (~78 F)
+      // wrapped the cast and corrupted the tenths — see prepare_set_().
+      uint8_t send_tenths = lroundf(t * 10.0f) % 10;
       if (send_tenths != 0 && send_tenths != 5) {
         send_tenths += 1;                  // unit will store tenths-1 = intended
         if (send_tenths == 10) { send_tenths = 0; send_int += 1; }

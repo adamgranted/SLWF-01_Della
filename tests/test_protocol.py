@@ -114,3 +114,53 @@ def test_parse_merges_chunked_burst(tmp_path):
     bursts = parse(str(log))
     assert len(bursts) == 1
     assert len(bursts[0][1]) == 8
+
+
+# ---------------------------------------------------------------------------
+# Setpoint encoder — mirrors della_ac.h control() / prepare_set_().
+#
+# Regression guard for issue #18. The tenths digit was computed as
+#     uint8_t send_tenths = ((uint8_t) lroundf(t * 10.0f)) % 10;
+# and t*10 >= 256 for t >= 25.6 C (~78 F), so the uint8_t cast wrapped (256 -> 0)
+# and corrupted every setpoint above ~78 F (setting 78 F stored 77 F, etc.). The
+# fix keeps lroundf a long for the % 10. `truncate_u8=True` reproduces the old
+# arithmetic so the guard provably bites.
+# ---------------------------------------------------------------------------
+
+SETPOINT_MIN_C, SETPOINT_MAX_C = 16.0, 32.0
+
+
+def _encode_tenths(t, truncate_u8=False):
+    send_int = int(t)                                  # (uint8_t) t, in range 16..32
+    raw = round(t * 10.0)                              # lroundf(t * 10.0f)
+    send_tenths = (raw & 0xFF if truncate_u8 else raw) % 10
+    if send_tenths not in (0, 5):
+        send_tenths += 1                               # unit erodes .x -> .x-1
+        if send_tenths == 10:
+            send_tenths = 0
+            send_int += 1
+    return send_int, send_tenths
+
+
+def _unit_stores_f(send_int, send_tenths):
+    erosion = 0.1 if send_tenths not in (0, 5) else 0.0   # MCU erodes non-.0/.5 by 0.1
+    stored_c = round(send_int + send_tenths / 10.0 - erosion, 1)
+    return stored_c * 9 / 5 + 32
+
+
+def _set_read_f(fahrenheit, truncate_u8=False):
+    t = round((fahrenheit - 32) * 5 / 9 * 10) / 10       # HA converts F -> C at 0.1
+    t = min(max(t, SETPOINT_MIN_C), SETPOINT_MAX_C)
+    return _unit_stores_f(*_encode_tenths(t, truncate_u8))
+
+
+@pytest.mark.parametrize("fahrenheit", list(range(61, 90)))  # 16.1..31.7 C, in-range
+def test_setpoint_holds_across_full_range(fahrenheit):
+    shown = _set_read_f(fahrenheit)
+    assert abs(shown - fahrenheit) <= 0.25, f"{fahrenheit}F stored as {shown:.1f}F"
+
+
+def test_setpoint_overflow_regression():
+    # 78 F = 25.6 C is the exact case from issue #18.
+    assert abs(_set_read_f(78) - 78) <= 0.25            # fixed encoder holds it
+    assert abs(_set_read_f(78, truncate_u8=True) - 78) > 0.5   # old encoder broke it
