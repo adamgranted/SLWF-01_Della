@@ -46,6 +46,7 @@ images to choose between).
 |-------|:------:|:--------:|-------|
 | **Della 048-MS** | ✅ | ✅ | Reference unit — fully verified |
 | **Della Motto JA 12K** (`12K1VRH-20S-JA`) | ✅ | ✅ | Same AUX protocol as the 048-MS (35-byte status frame). Confirmed on idle + active-cooling captures ([#11](https://github.com/adamgranted/esphome-della-ac/issues/11)) |
+| **Della Serena Series 18K** (`18K2VR-22S-M-I+O`) | ✅ | ✅ | Confirmed working by a community user ([Home Assistant report](https://community.home-assistant.io/t/della-ac-integration/756819/16)) |
 
 Other AUX-built Della / AUX-OEM units very likely work. If yours isn't listed, open an
 issue with a `verbose`-on log capture and it can usually be added in a line or two.
