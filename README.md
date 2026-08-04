@@ -8,6 +8,9 @@
     </picture>
   </a>
   <h2>esphome-della-ac</h2>
+  <p>
+    <b>English</b> · <a href="./README.es.md">Español</a>
+  </p>
   <p align="center">
       <p><b>Local Home Assistant control for AUX-OEM Della mini splits</b></p>
   </p>
